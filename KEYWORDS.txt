@@ -1,0 +1,22 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+HCSR04	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+initialise	KEYWORD2
+startListening KEYWORD2
+isFinished	KEYWORD2
+isError	KEYWORD2
+getDistance KEYWORD2
+printDistance KEYWORD2
+interruptRoutine KEYWORD2
+echoPosition KEYWORD2
+
