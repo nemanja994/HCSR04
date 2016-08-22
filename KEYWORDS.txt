@@ -13,7 +13,7 @@ HCSR04	KEYWORD1
 #######################################
 startListening KEYWORD2
 isFinished	KEYWORD2
-isError	KEYWORD2
+isError KEYWORD2
 getDistance KEYWORD2
 printDistance KEYWORD2
 interruptRoutine KEYWORD2

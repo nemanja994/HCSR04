@@ -1,60 +1,65 @@
-// 
-// 
-// 
-
 #include "HCSR04.h"
 
 HCSR04::HCSR04(uint8_t triggerPin, uint8_t echoPin){
 	// Class constructor
 	trigger = triggerPin;
 	echo = echoPin;
-	finished = false;
-	resetSignal=true
-	pinMode(trigger, OUTPUT);
-	digitalWrite(trigger, LOW);
-	pinMode(echo, INPUT);
-}
-
-HCSR04::HCSR04(uint8_t triggerPin){
-	trigger = triggerPin;
-	echo = trigger;
-	finished = false;
-	resetSignal=true
+	finished = resetSignal=true;
+	currentPos = counter=0;
 	pinMode(trigger, OUTPUT);
 	digitalWrite(trigger, LOW);
 	pinMode(echo, INPUT);
 }
 
 void HCSR04::startListening(){
-	// this method sends the signal from trigger pin
-	if (micros()-end>resetCount) resetSignal=true;
-	if (finished == false && resetSignal==true){
+	// this method sends the ultrasound signal from trigger pin
+	if (micros()-end>resetCount || resetSignal) resetSignal=true;
+	if (finished && resetSignal){
+		finished=false;
 		digitalWrite(trigger, HIGH);
 		delayMicroseconds(10);
 		digitalWrite(trigger, LOW);
 	}
 }
 
-uint16_t HCSR04::getDistance(){
-	// this method returns the lastMeasured distance (if you use this method you must always check if measured distance is wrong with isError method afterwards)
-		finished = false;
-		lastDistance=(end-start)/58;
-		return lastDistance;
+void HCSR04::calculateDistance(){
+	// this method calculates the last measured distance
+		finished = true;
+		lastDistance=(end-start)/58.2;
 }
 
-bool HCSR04::isError(){
-	// this method checks if last measured distance is larger than maxDistance or equals to 0
+bool HCSR04::checkDistanceError(){
+	// this method checks if the last measured distance is larger than maxDistance or equals to 0
 	if(lastDistance>maxDistance || lastDistance==0) return true;
 	else return false;
 }
 
+void HCSR04::addToFilter(){
+	calculateDistance();
+	if (!checkDistanceError()){
+		if(counter<windowSize) {
+			counter +=1;
+		}
+		else{
+				sum-=window[currentPos];
+		}
+		window[currentPos] = lastDistance;
+		sum+=lastDistance;
+		currentPos = (currentPos + 1) % windowSize;
+		// the counter keeps track on window length
+	}
+}
+
+uint16_t HCSR04::getDistance(){
+	if (sum>0) return sum/counter;
+	else return 0;
+}
+
 void HCSR04::printDistance(){
-	// this method prints the last measured distance or prints Error if the last measured distance is larger than maxDistance
-	uint16_t tmp=getDistance();
-	if (isError()) Serial.println("ERR");
-	else {
+	// this method prints the measured distance
+	if(!isError()){
 	Serial.print("Distance: ");
-	Serial.print(lastDistance);
+	Serial.print(getDistance());
 	Serial.println(" cm");
 	}
 }
@@ -67,8 +72,8 @@ void HCSR04::interruptRoutine(){
 			break;
 		case(LOW) :
 			end = micros();
-			finished = true;
 			resetSignal=false;
+			addToFilter();
 			break;
 	}
 }

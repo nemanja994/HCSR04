@@ -21,5 +21,5 @@ void setup() {
 // the loop function runs over and over again until power down or reset
 void loop() {
 	sensor.startListening();
-	if (sensor.isFinished()) sensor.printDistance();
+	if(!sensor.isError)sensor.printDistance();
 }
