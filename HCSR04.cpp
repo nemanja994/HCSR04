@@ -9,6 +9,17 @@ HCSR04::HCSR04(uint8_t triggerPin, uint8_t echoPin){
 	trigger = triggerPin;
 	echo = echoPin;
 	finished = false;
+	resetSignal=true
+	pinMode(trigger, OUTPUT);
+	digitalWrite(trigger, LOW);
+	pinMode(echo, INPUT);
+}
+
+HCSR04::HCSR04(uint8_t triggerPin){
+	trigger = triggerPin;
+	echo = trigger;
+	finished = false;
+	resetSignal=true
 	pinMode(trigger, OUTPUT);
 	digitalWrite(trigger, LOW);
 	pinMode(echo, INPUT);
